@@ -1,10 +1,11 @@
 # tag::importlib[]
 import importlib
+
 # end::importlib[]
 
 __all__ = [
-    'Encoder',
-    'get_encoder_by_name',
+    "Encoder",
+    "get_encoder_by_name",
 ]
 
 
@@ -28,6 +29,7 @@ class Encoder:
     def shape(self):  # <6>
         raise NotImplementedError()
 
+
 # <1> Lets us support logging or saving the name of the encoder our model is using.
 # <2> Turn a Go board into a numeric data.
 # <3> Turn a Go board point into an integer index.
@@ -41,9 +43,10 @@ class Encoder:
 def get_encoder_by_name(name, board_size):  # <1>
     if isinstance(board_size, int):
         board_size = (board_size, board_size)  # <2>
-    module = importlib.import_module('dlgo.encoders.' + name)
-    constructor = getattr(module, 'create')  # <3>
+    module = importlib.import_module("dlgo.encoders." + name)
+    constructor = getattr(module, "create")  # <3>
     return constructor(board_size)
+
 
 # <1> We can create encoder instances by referencing their name.
 # <2> If board_size is one integer, we create a square board from it.
