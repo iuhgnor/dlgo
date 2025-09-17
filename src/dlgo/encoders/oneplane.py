@@ -9,7 +9,10 @@ from dlgo.goboard import GameState, Point
 
 # tag::oneplane_encoder[]
 class OnePlaneEncoder(Encoder):
-    def __init__(self, board_size: tuple[int, int]):
+    def __init__(self, board_size: int | tuple[int, int]):
+        if isinstance(board_size, int):
+            board_size = (board_size, board_size)
+
         self.board_width, self.board_height = board_size
         self.num_planes = 1
 
@@ -57,7 +60,7 @@ class OnePlaneEncoder(Encoder):
 
 
 # tag::oneplane_create[]
-def create(board_size: tuple[int, int]) -> OnePlaneEncoder:
+def create(board_size: int) -> OnePlaneEncoder:
     return OnePlaneEncoder(board_size)
 
 

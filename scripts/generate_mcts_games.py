@@ -1,19 +1,23 @@
 # tag::generate_mcts_imports[]
 import argparse
+
 import numpy as np
 
-from dlgo.encoders import get_encoder_by_name
 from dlgo import goboard_fast as goboard
 from dlgo import mcts
+from dlgo.encoders import get_encoder_by_name
 from dlgo.utils import print_board, print_move
+
 # end::generate_mcts_imports[]
 
 
 # tag::generate_mcts[]
-def generate_game(board_size, rounds, max_moves, temperature):
+def generate_game(
+    board_size: tuple[int, int], rounds: int, max_moves: int, temperature: float
+):
     boards, moves = [], []  # <1>
 
-    encoder = get_encoder_by_name('oneplane', board_size)  # <2>
+    encoder = get_encoder_by_name("oneplane", board_size)  # <2>
 
     game = goboard.GameState.new_game(board_size)  # <3>
 
@@ -38,6 +42,7 @@ def generate_game(board_size, rounds, max_moves, temperature):
 
     return np.array(boards), np.array(moves)  # <10>
 
+
 # <1> In `boards` we store encoded board state, `moves` is for encoded moves.
 # <2> We initialize a OnePlaneEncoder by name with given board size.
 # <3> An new game of size `board_size` is instantiated.
@@ -53,22 +58,25 @@ def generate_game(board_size, rounds, max_moves, temperature):
 # tag::generate_mcts_main[]
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--board-size', '-b', type=int, default=9)
-    parser.add_argument('--rounds', '-r', type=int, default=1000)
-    parser.add_argument('--temperature', '-t', type=float, default=0.8)
-    parser.add_argument('--max-moves', '-m', type=int, default=60,
-                        help='Max moves per game.')
-    parser.add_argument('--num-games', '-n', type=int, default=10)
-    parser.add_argument('--board-out')
-    parser.add_argument('--move-out')
+    parser.add_argument("--board-size", "-b", type=int, default=9)
+    parser.add_argument("--rounds", "-r", type=int, default=1000)
+    parser.add_argument("--temperature", "-t", type=float, default=0.8)
+    parser.add_argument(
+        "--max-moves", "-m", type=int, default=60, help="Max moves per game."
+    )
+    parser.add_argument("--num-games", "-n", type=int, default=10)
+    parser.add_argument("--board-out")
+    parser.add_argument("--move-out")
 
     args = parser.parse_args()  # <1>
     xs = []
     ys = []
 
     for i in range(args.num_games):
-        print('Generating game %d/%d...' % (i + 1, args.num_games))
-        x, y = generate_game(args.board_size, args.rounds, args.max_moves, args.temperature)  # <2>
+        print("Generating game %d/%d..." % (i + 1, args.num_games))
+        x, y = generate_game(
+            args.board_size, args.rounds, args.max_moves, args.temperature
+        )  # <2>
         xs.append(x)
         ys.append(y)
 
@@ -79,7 +87,7 @@ def main():
     np.save(args.move_out, y)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 # <1> This application allows some customization via command line arguments.

@@ -1,6 +1,10 @@
 # tag::importlib[]
 import importlib
 
+import numpy as np
+
+from dlgo.goboard import GameState, Point
+
 # end::importlib[]
 
 __all__ = [
@@ -14,19 +18,19 @@ class Encoder:
     def name(self):  # <1>
         raise NotImplementedError()
 
-    def encode(self, game_state):  # <2>
+    def encode(self, game_state: GameState) -> np.ndarray:  # <2>
         raise NotImplementedError()
 
-    def encode_point(self, point):  # <3>
+    def encode_point(self, point: Point) -> int:  # <3>
         raise NotImplementedError()
 
-    def decode_point_index(self, index):  # <4>
+    def decode_point_index(self, index: int) -> Point:  # <4>
         raise NotImplementedError()
 
-    def num_points(self):  # <5>
+    def num_points(self) -> int:  # <5>
         raise NotImplementedError()
 
-    def shape(self):  # <6>
+    def shape(self) -> tuple[int, int, int]:  # <6>
         raise NotImplementedError()
 
 
@@ -40,7 +44,7 @@ class Encoder:
 
 
 # tag::encoder_by_name[]
-def get_encoder_by_name(name, board_size):  # <1>
+def get_encoder_by_name(name: str, board_size: int | tuple[int, int]) -> Encoder:  # <1>
     if isinstance(board_size, int):
         board_size = (board_size, board_size)  # <2>
     module = importlib.import_module("dlgo.encoders." + name)
