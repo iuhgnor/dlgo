@@ -20,7 +20,7 @@ class SimpleEncoder(Encoder):
         self.num_planes = 11
 
     def name(self):
-        return 'simple'
+        return "simple"
 
     def encode(self, game_state):
         board_tensor = np.zeros(self.shape())
@@ -34,8 +34,9 @@ class SimpleEncoder(Encoder):
                 go_string = game_state.board.get_go_string(p)
 
                 if go_string is None:
-                    if game_state.does_move_violate_ko(game_state.next_player,
-                                                       Move.play(p)):
+                    if game_state.does_move_violate_ko(
+                        game_state.next_player, Move.play(p)
+                    ):
                         board_tensor[10][r][c] = 1
                 else:
                     liberty_plane = min(4, go_string.num_liberties) - 1

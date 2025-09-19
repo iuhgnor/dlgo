@@ -20,18 +20,15 @@ values should pass is_valid_property_value().
 Adapted from gomill by Matthew Woodcraft, https://github.com/mattheww/gomill
 """
 
-from __future__ import absolute_import
 import re
-import string
 
-import six
-
-
-_propident_re = re.compile(r"\A[A-Z]{1,8}\Z".encode('ascii'))
-_propvalue_re = re.compile(r"\A [^\\\]]* (?: \\. [^\\\]]* )* \Z".encode('ascii'),
-                           re.VERBOSE | re.DOTALL)
-_find_start_re = re.compile(r"\(\s*;".encode('ascii'))
-_tokenise_re = re.compile(r"""
+_propident_re = re.compile(r"\A[A-Z]{1,8}\Z".encode("ascii"))
+_propvalue_re = re.compile(
+    r"\A [^\\\]]* (?: \\. [^\\\]]* )* \Z".encode("ascii"), re.VERBOSE | re.DOTALL
+)
+_find_start_re = re.compile(r"\(\s*;".encode("ascii"))
+_tokenise_re = re.compile(
+    r"""
 \s*
 (?:
     \[ (?P<V> [^\\\]]* (?: \\. [^\\\]]* )* ) \]   # PropValue
@@ -40,7 +37,9 @@ _tokenise_re = re.compile(r"""
     |
     (?P<D> [;()] )                                # delimiter
 )
-""".encode('ascii'), re.VERBOSE | re.DOTALL)
+""".encode("ascii"),
+    re.VERBOSE | re.DOTALL,
+)
 
 
 def is_valid_property_identifier(s):
@@ -109,10 +108,10 @@ def tokenise(s, start_position=0):
         token = m.group(m.lastindex)
         result.append((group, token))
         i = m.end()
-        if group == 'D':
-            if token == b'(':
+        if group == "D":
+            if token == b"(":
                 depth += 1
-            elif token == b')':
+            elif token == b")":
                 depth -= 1
                 if depth == 0:
                     break
@@ -133,6 +132,7 @@ class Coarse_game_tree:
     The sequence represents the nodes before the variations.
 
     """
+
     def __init__(self):
         self.sequence = []  # must be at least one node
         self.children = []  # may be empty
@@ -152,10 +152,10 @@ def _parse_sgf_game(s, start_position):
         while True:
             token_type, token = tokens[index]
             index += 1
-            if token_type == 'V':
+            if token_type == "V":
                 raise ValueError("unexpected value")
-            if token_type == 'D':
-                if token == b';':
+            if token_type == "D":
+                if token == b";":
                     if sequence is None:
                         raise ValueError("unexpected node")
                     properties = {}
@@ -166,7 +166,7 @@ def _parse_sgf_game(s, start_position):
                             raise ValueError("empty sequence")
                         game_tree.sequence = sequence
                         sequence = None
-                    if token == b'(':
+                    if token == b"(":
                         stack.append(game_tree)
                         game_tree = Coarse_game_tree()
                         sequence = []
@@ -184,7 +184,7 @@ def _parse_sgf_game(s, start_position):
                 prop_values = []
                 while True:
                     token_type, token = tokens[index]
-                    if token_type != 'V':
+                    if token_type != "V":
                         break
                     index += 1
                     prop_values.append(token)
@@ -313,8 +313,9 @@ def serialise_game_tree(game_tree, wrap=79):
             # Force FF to the front, largely to work around a Quarry bug which
             # makes it ignore the first few bytes of the file.
             for prop_ident, prop_values in sorted(
-                    list(properties.items()),
-                    key=lambda pair: (-(pair[0] == b"FF"), pair[0])):
+                list(properties.items()),
+                key=lambda pair: (-(pair[0] == b"FF"), pair[0]),
+            ):
                 # Make a single string for each property, to get prettier
                 # block_format output.
                 m = [prop_ident]
@@ -415,8 +416,8 @@ def main_sequence_iter(game_tree):
 
 
 _split_compose_re = re.compile(
-    r"( (?: [^\\:] | \\. )* ) :".encode('ascii'),
-    re.VERBOSE | re.DOTALL)
+    r"( (?: [^\\:] | \\. )* ) :".encode("ascii"), re.VERBOSE | re.DOTALL
+)
 
 
 def parse_compose(s):
@@ -434,7 +435,7 @@ def parse_compose(s):
     m = _split_compose_re.match(s)
     if not m:
         return s, None
-    return m.group(1), s[m.end():]
+    return m.group(1), s[m.end() :]
 
 
 def compose(s1, s2):
@@ -448,13 +449,13 @@ def compose(s1, s2):
     return s1.replace(b":", b"\\:") + b":" + s2
 
 
-_newline_re = re.compile(r"\n\r|\r\n|\n|\r".encode('ascii'))
-if six.PY2:
-    _binary_maketrans = string.maketrans
-else:
-    _binary_maketrans = bytes.maketrans
+_newline_re = re.compile(r"\n\r|\r\n|\n|\r".encode("ascii"))
+# if six.PY2:
+#     _binary_maketrans = string.maketrans
+# else:
+_binary_maketrans = bytes.maketrans
 _whitespace_table = _binary_maketrans(b"\t\f\v", b"   ")
-_chunk_re = re.compile(r" [^\n\\]+ | [\n\\] ".encode('ascii'), re.VERBOSE)
+_chunk_re = re.compile(r" [^\n\\]+ | [\n\\] ".encode("ascii"), re.VERBOSE)
 
 
 def simpletext_value(s):

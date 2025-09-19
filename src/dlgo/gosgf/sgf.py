@@ -5,18 +5,14 @@ This is intended for use with SGF FF[4]; see http://www.red-bean.com/sgf/
 Adapted from gomill by Matthew Woodcraft, https://github.com/mattheww/gomill
 """
 
-from __future__ import absolute_import
 import datetime
 
-import six
-
-from . import sgf_grammar
-from . import sgf_properties
+from . import sgf_grammar, sgf_properties
 
 __all__ = [
-    'Node',
-    'Sgf_game',
-    'Tree_node',
+    "Node",
+    "Sgf_game",
+    "Tree_node",
 ]
 
 
@@ -113,8 +109,9 @@ class Node:
         return self._property_map
 
     def _set_raw_list(self, identifier, values):
-        if identifier == b"SZ" and \
-                values != [str(self._presenter.size).encode(self._presenter.encoding)]:
+        if identifier == b"SZ" and values != [
+            str(self._presenter.size).encode(self._presenter.encoding)
+        ]:
             raise ValueError("changing size is not permitted")
         self._property_map[identifier] = values
 
@@ -183,8 +180,7 @@ class Node:
         See sgf_properties.Presenter.interpret() for details.
 
         """
-        return self._presenter.interpret(
-            identifier, self._property_map[identifier])
+        return self._presenter.interpret(identifier, self._property_map[identifier])
 
     def set(self, identifier, value):
         """Set the value of the specified property.
@@ -199,8 +195,7 @@ class Node:
         See sgf_properties.Presenter.serialise() for details.
 
         """
-        self._set_raw_list(
-            identifier, self._presenter.serialise(identifier, value))
+        self._set_raw_list(identifier, self._presenter.serialise(identifier, value))
 
     def get_raw_move(self):
         """Return the raw value of the move from a node.
@@ -238,8 +233,7 @@ class Node:
         colour, raw = self.get_raw_move()
         if colour is None:
             return None, None
-        return (colour,
-                sgf_properties.interpret_go_point(raw, self._presenter.size))
+        return (colour, sgf_properties.interpret_go_point(raw, self._presenter.size))
 
     def get_setup_stones(self):
         """Retrieve Add Black / Add White / Add Empty properties from a node.
@@ -266,7 +260,7 @@ class Node:
     def has_setup_stones(self):
         """Check whether the node has any AB/AW/AE properties."""
         d = self._property_map
-        return (b"AB" in d or b"AW" in d or b"AE" in d)
+        return b"AB" in d or b"AW" in d or b"AE" in d
 
     def set_move(self, colour, move):
         """Set the B or W property.
@@ -277,13 +271,13 @@ class Node:
         Replaces any existing B or W property in the node.
 
         """
-        if colour not in ('b', 'w'):
+        if colour not in ("b", "w"):
             raise ValueError
-        if b'B' in self._property_map:
-            del self._property_map[b'B']
-        if b'W' in self._property_map:
-            del self._property_map[b'W']
-        self.set(colour.upper().encode('ascii'), move)
+        if b"B" in self._property_map:
+            del self._property_map[b"B"]
+        if b"W" in self._property_map:
+            del self._property_map[b"W"]
+        self.set(colour.upper().encode("ascii"), move)
 
     def set_setup_stones(self, black, white, empty=None):
         """Set Add Black / Add White / Add Empty properties.
@@ -293,18 +287,18 @@ class Node:
         Removes any existing AB/AW/AE properties from the node.
 
         """
-        if b'AB' in self._property_map:
-            del self._property_map[b'AB']
-        if b'AW' in self._property_map:
-            del self._property_map[b'AW']
-        if b'AE' in self._property_map:
-            del self._property_map[b'AE']
+        if b"AB" in self._property_map:
+            del self._property_map[b"AB"]
+        if b"AW" in self._property_map:
+            del self._property_map[b"AW"]
+        if b"AE" in self._property_map:
+            del self._property_map[b"AE"]
         if black:
-            self.set(b'AB', black)
+            self.set(b"AB", black)
         if white:
-            self.set(b'AW', white)
+            self.set(b"AW", white)
         if empty:
-            self.set(b'AE', empty)
+            self.set(b"AE", empty)
 
     def add_comment_text(self, text):
         """Add or extend the node's comment.
@@ -316,21 +310,26 @@ class Node:
         (with two newlines in front).
 
         """
-        if self.has_property(b'C'):
-            self.set(b'C', self.get(b'C') + b"\n\n" + text)
+        if self.has_property(b"C"):
+            self.set(b"C", self.get(b"C") + b"\n\n" + text)
         else:
-            self.set(b'C', text)
+            self.set(b"C", text)
 
     def __str__(self):
         encoding = self.get_encoding()
 
         def format_property(ident, values):
             return ident.decode(encoding) + "".join(
-                "[%s]" % s.decode(encoding) for s in values)
-        return "\n".join(
-            format_property(ident, values)
-            for (ident, values) in sorted(self._property_map.items())) \
+                "[%s]" % s.decode(encoding) for s in values
+            )
+
+        return (
+            "\n".join(
+                format_property(ident, values)
+                for (ident, values) in sorted(self._property_map.items())
+            )
             + "\n"
+        )
 
 
 class Tree_node(Node):
@@ -471,9 +470,8 @@ class _Unexpanded_root_tree_node(_Root_tree_node):
         self._coarse_tree = coarse_tree
 
     def _expand(self):
-        sgf_grammar.make_tree(
-            self._coarse_tree, self, Tree_node, Tree_node._add_child)
-        delattr(self, '_coarse_tree')
+        sgf_grammar.make_tree(self._coarse_tree, self, Tree_node, Tree_node._add_child)
+        delattr(self, "_coarse_tree")
         self.__class__ = _Root_tree_node
 
     def __len__(self):
@@ -523,6 +521,7 @@ class Sgf_game:
     controls the encoding used by serialise().
 
     """
+
     def __new__(cls, size, encoding="UTF-8", *args, **kwargs):
         # To complete initialisation after this, you need to set 'root'.
         if not 1 <= size <= 26:
@@ -534,11 +533,11 @@ class Sgf_game:
 
     def __init__(self, *args, **kwargs):
         self.root = _Root_tree_node({}, self)
-        self.root.set_raw(b'FF', b"4")
-        self.root.set_raw(b'GM', b"1")
-        self.root.set_raw(b'SZ', str(self.size).encode(self.presenter.encoding))
+        self.root.set_raw(b"FF", b"4")
+        self.root.set_raw(b"GM", b"1")
+        self.root.set_raw(b"SZ", str(self.size).encode(self.presenter.encoding))
         # Read the encoding back so we get the normalised form
-        self.root.set_raw(b'CA', self.presenter.encoding.encode('ascii'))
+        self.root.set_raw(b"CA", self.presenter.encoding.encode("ascii"))
 
     @classmethod
     def from_coarse_game_tree(cls, coarse_game, override_encoding=None):
@@ -560,7 +559,7 @@ class Sgf_game:
 
         """
         try:
-            size_s = coarse_game.sequence[0][b'SZ'][0]
+            size_s = coarse_game.sequence[0][b"SZ"][0]
         except KeyError:
             size = 19
         else:
@@ -570,7 +569,7 @@ class Sgf_game:
                 raise ValueError("bad SZ property: %s" % size_s)
         if override_encoding is None:
             try:
-                encoding = coarse_game.sequence[0][b'CA'][0]
+                encoding = coarse_game.sequence[0][b"CA"][0]
             except KeyError:
                 encoding = b"ISO-8859-1"
         else:
@@ -578,7 +577,7 @@ class Sgf_game:
         game = cls.__new__(cls, size, encoding)
         game.root = _Unexpanded_root_tree_node(game, coarse_game)
         if override_encoding is not None:
-            game.root.set_raw(b"CA", game.presenter.encoding.encode('ascii'))
+            game.root.set_raw(b"CA", game.presenter.encoding.encode("ascii"))
         return game
 
     @classmethod
@@ -593,8 +592,8 @@ class Sgf_game:
         See from_coarse_game_tree for details of size and encoding handling.
 
         """
-        if not isinstance(s, six.binary_type):
-            s = s.encode('ascii')
+        if not isinstance(s, bytes):
+            s = s.encode("ascii")
         coarse_game = sgf_grammar.parse_sgf_game(s)
         return cls.from_coarse_game_tree(coarse_game, override_encoding)
 
@@ -625,10 +624,10 @@ class Sgf_game:
         try:
             encoding = self.get_charset()
         except ValueError:
-            raise ValueError("unsupported charset: %r" %
-                             self.root.get_raw_list(b"CA"))
+            raise ValueError("unsupported charset: %r" % self.root.get_raw_list(b"CA"))
         coarse_tree = sgf_grammar.make_coarse_game_tree(
-            self.root, lambda node: node, Node.get_raw_property_map)
+            self.root, lambda node: node, Node.get_raw_property_map
+        )
         serialised = sgf_grammar.serialise_game_tree(coarse_tree, wrap)
         if encoding == self.root.get_encoding():
             return serialised
@@ -791,8 +790,9 @@ class Sgf_game:
 
         """
         try:
-            return self.root.get(
-                {'b': b'PB', 'w': b'PW'}[colour]).decode(self.presenter.encoding)
+            return self.root.get({"b": b"PB", "w": b"PW"}[colour]).decode(
+                self.presenter.encoding
+            )
         except KeyError:
             return None
 
@@ -821,4 +821,4 @@ class Sgf_game:
         """
         if date is None:
             date = datetime.date.today()
-        self.root.set('DT', date.strftime("%Y-%m-%d"))
+        self.root.set("DT", date.strftime("%Y-%m-%d"))

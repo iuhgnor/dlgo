@@ -1,14 +1,13 @@
-from __future__ import absolute_import
-from keras.layers.core import Dense, Activation, Flatten
+from keras.layers import Activation, Dense, Flatten
 
 
 def layers(input_shape):
     return [
         Dense(128, input_shape=input_shape),
-        Activation('relu'),
+        Activation("relu"),
         Dense(128, input_shape=input_shape),
-        Activation('relu'),
+        Activation("relu"),
         Flatten(),
         Dense(128),
-        Activation('relu'),
+        Activation("relu"),
     ]
