@@ -1,10 +1,11 @@
+import h5py
 import numpy as np
 
 __all__ = [
-    'ExperienceCollector',
-    'ExperienceBuffer',
-    'combine_experience',
-    'load_experience',
+    "ExperienceCollector",
+    "ExperienceBuffer",
+    "combine_experience",
+    "load_experience",
 ]
 
 
@@ -50,31 +51,29 @@ class ExperienceBuffer:
         self.rewards = rewards
         self.advantages = advantages
 
-    def serialize(self, h5file):
-        h5file.create_group('experience')
-        h5file['experience'].create_dataset('states', data=self.states)
-        h5file['experience'].create_dataset('actions', data=self.actions)
-        h5file['experience'].create_dataset('rewards', data=self.rewards)
-        h5file['experience'].create_dataset('advantages', data=self.advantages)
+    def serialize(self, h5file: h5py.File) -> None:
+        h5file.create_group("experience")
+        h5file["experience"].create_dataset("states", data=self.states)
+        h5file["experience"].create_dataset("actions", data=self.actions)
+        h5file["experience"].create_dataset("rewards", data=self.rewards)
+        h5file["experience"].create_dataset("advantages", data=self.advantages)
 
 
-def combine_experience(collectors):
+def combine_experience(collectors: ExperienceCollector) -> ExperienceBuffer:
     combined_states = np.concatenate([np.array(c.states) for c in collectors])
     combined_actions = np.concatenate([np.array(c.actions) for c in collectors])
     combined_rewards = np.concatenate([np.array(c.rewards) for c in collectors])
-    combined_advantages = np.concatenate([
-        np.array(c.advantages) for c in collectors])
+    combined_advantages = np.concatenate([np.array(c.advantages) for c in collectors])
 
     return ExperienceBuffer(
-        combined_states,
-        combined_actions,
-        combined_rewards,
-        combined_advantages)
+        combined_states, combined_actions, combined_rewards, combined_advantages
+    )
 
 
 def load_experience(h5file):
     return ExperienceBuffer(
-        states=np.array(h5file['experience']['states']),
-        actions=np.array(h5file['experience']['actions']),
-        rewards=np.array(h5file['experience']['rewards']),
-        advantages=np.array(h5file['experience']['advantages']))
+        states=np.array(h5file["experience"]["states"]),
+        actions=np.array(h5file["experience"]["actions"]),
+        rewards=np.array(h5file["experience"]["rewards"]),
+        advantages=np.array(h5file["experience"]["advantages"]),
+    )
